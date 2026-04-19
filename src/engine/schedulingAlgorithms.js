@@ -298,15 +298,70 @@ export function roundRobin(inputProcesses, timeQuantum = 2) {
 }
 
 /**
+ * Highest Response Ratio Next (HRRN) - Non-Preemptive
+ */
+export function hrrn(inputProcesses) {
+  const processes = inputProcesses.map(p => ({ ...p }));
+  const n = processes.length;
+  const completed = new Array(n).fill(false);
+  const timeline = [];
+  let currentTime = 0;
+  let done = 0;
+
+  while (done < n) {
+    const available = processes
+      .map((p, i) => ({ ...p, idx: i }))
+      .filter((p) => !completed[p.idx] && p.arrivalTime <= currentTime);
+
+    if (available.length === 0) {
+      const nextArrivalTimes = processes.filter((_, i) => !completed[i]).map(p => p.arrivalTime);
+      const nextArrival = Math.min(...nextArrivalTimes);
+      
+      timeline.push({ processId: 'Idle', start: currentTime, end: nextArrival });
+      currentTime = nextArrival;
+      continue;
+    }
+
+    // Calculate Response Ratio for all available
+    // Response Ratio = (Waiting Time + Burst Time) / Burst Time
+    const availableWithRR = available.map(p => {
+      const waitingTime = currentTime - p.arrivalTime;
+      const responseRatio = (waitingTime + p.burstTime) / p.burstTime;
+      return { ...p, responseRatio };
+    });
+
+    availableWithRR.sort((a, b) => b.responseRatio - a.responseRatio || a.arrivalTime - b.arrivalTime);
+    const chosen = availableWithRR[0];
+    const start = currentTime;
+    const end = currentTime + chosen.burstTime;
+
+    timeline.push({ processId: chosen.id, start, end });
+    processes[chosen.idx].completionTime = end;
+    processes[chosen.idx].turnaroundTime = end - chosen.arrivalTime;
+    processes[chosen.idx].waitingTime = processes[chosen.idx].turnaroundTime - chosen.burstTime;
+    completed[chosen.idx] = true;
+    currentTime = end;
+    done++;
+  }
+
+  return {
+    name: 'HRRN',
+    fullName: 'Highest Response Ratio Next (Non-Preemptive)',
+    processes,
+    timeline,
+    metrics: calculateMetrics(processes, timeline),
+  };
+}
+
+/**
  * Run all algorithms and pick the best
  */
 export function compareAll(inputProcesses, timeQuantum = 2) {
   const results = [
-    fcfs(inputProcesses),
-    sjfNonPreemptive(inputProcesses),
     sjfPreemptive(inputProcesses),
     priorityScheduling(inputProcesses),
     roundRobin(inputProcesses, timeQuantum),
+    hrrn(inputProcesses),
   ];
 
   let bestWT = results[0];
@@ -350,6 +405,7 @@ export function runAlgorithm(name, processes, timeQuantum) {
     case 'SRTF': return sjfPreemptive(processes);
     case 'Priority': return priorityScheduling(processes);
     case 'RR': return roundRobin(processes, timeQuantum);
+    case 'HRRN': return hrrn(processes);
     default: return fcfs(processes);
   }
 }

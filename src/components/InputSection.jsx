@@ -9,6 +9,7 @@ const ALGORITHMS = [
   { value: 'SRTF', label: 'Shortest Remaining Time First (Preemptive SJF)' },
   { value: 'Priority', label: 'Priority Scheduling (Non-Preemptive)' },
   { value: 'RR', label: 'Round Robin' },
+  { value: 'HRRN', label: 'Highest Response Ratio Next' },
 ];
 
 export default function InputSection({ processes, setProcesses, algorithm, setAlgorithm, timeQuantum, setTimeQuantum, onRun, onCompare }) {
