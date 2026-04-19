@@ -8,6 +8,7 @@ const ALGORITHMS = [
   { value: 'SJF', label: 'Shortest Job First (Non-Preemptive)' },
   { value: 'SRTF', label: 'Shortest Remaining Time First (Preemptive SJF)' },
   { value: 'Priority', label: 'Priority Scheduling (Non-Preemptive)' },
+  { value: 'Priority-P', label: 'Priority Scheduling (Preemptive)' },
   { value: 'RR', label: 'Round Robin' },
   { value: 'HRRN', label: 'Highest Response Ratio Next' },
 ];

@@ -354,6 +354,67 @@ export function hrrn(inputProcesses) {
 }
 
 /**
+ * Priority Scheduling (Preemptive)
+ */
+export function priorityPreemptive(inputProcesses) {
+  const processes = inputProcesses.map(p => ({ ...p, remaining: p.burstTime }));
+  const n = processes.length;
+  const timeline = [];
+  let currentTime = 0;
+  let done = 0;
+  let prev = -1;
+  const maxTime = Math.max(...processes.map(p => p.arrivalTime)) + processes.reduce((s, p) => s + p.burstTime, 0) + 1;
+
+  while (done < n && currentTime < maxTime) {
+    const available = processes
+      .map((p, i) => ({ ...p, idx: i }))
+      .filter(p => p.arrivalTime <= currentTime && p.remaining > 0);
+
+    if (available.length === 0) {
+      const remainingProcesses = processes.filter(p => p.remaining > 0);
+      if (remainingProcesses.length === 0) break;
+      const nextArrival = Math.min(...remainingProcesses.map(p => p.arrivalTime));
+      if (timeline.length > 0 && timeline[timeline.length - 1].processId === 'Idle') {
+        timeline[timeline.length - 1].end = nextArrival;
+      } else {
+        timeline.push({ processId: 'Idle', start: currentTime, end: nextArrival });
+      }
+      currentTime = nextArrival;
+      prev = -1;
+      continue;
+    }
+
+    available.sort((a, b) => a.priority - b.priority || a.arrivalTime - b.arrivalTime);
+    const chosen = available[0];
+
+    if (prev !== chosen.idx) {
+      timeline.push({ processId: chosen.id, start: currentTime, end: currentTime + 1 });
+    } else {
+      timeline[timeline.length - 1].end = currentTime + 1;
+    }
+
+    processes[chosen.idx].remaining--;
+    if (processes[chosen.idx].remaining === 0) {
+      processes[chosen.idx].completionTime = currentTime + 1;
+      processes[chosen.idx].turnaroundTime = processes[chosen.idx].completionTime - chosen.arrivalTime;
+      processes[chosen.idx].waitingTime = processes[chosen.idx].turnaroundTime - chosen.burstTime;
+      done++;
+    }
+
+    prev = chosen.idx;
+    currentTime++;
+  }
+
+  return {
+    name: 'Priority (P)',
+    fullName: 'Priority Scheduling (Preemptive)',
+    processes: processes.map(({ remaining, ...rest }) => rest),
+    timeline,
+    metrics: calculateMetrics(processes, timeline),
+  };
+}
+
+/**
  * Run all algorithms and pick the best
  */
 export function compareAll(inputProcesses, timeQuantum = 2) {
@@ -362,6 +423,7 @@ export function compareAll(inputProcesses, timeQuantum = 2) {
     priorityScheduling(inputProcesses),
     roundRobin(inputProcesses, timeQuantum),
     hrrn(inputProcesses),
+    priorityPreemptive(inputProcesses),
   ];
 
   let bestWT = results[0];
@@ -404,6 +466,7 @@ export function runAlgorithm(name, processes, timeQuantum) {
     case 'SJF': return sjfNonPreemptive(processes);
     case 'SRTF': return sjfPreemptive(processes);
     case 'Priority': return priorityScheduling(processes);
+    case 'Priority-P': return priorityPreemptive(processes);
     case 'RR': return roundRobin(processes, timeQuantum);
     case 'HRRN': return hrrn(processes);
     default: return fcfs(processes);

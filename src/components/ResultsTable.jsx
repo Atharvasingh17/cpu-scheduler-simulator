@@ -1,10 +1,39 @@
 import { motion } from 'framer-motion';
+import { Download } from 'lucide-react';
 import { getProcessColor } from '../engine/schedulingAlgorithms';
 
 export default function ResultsTable({ result, processes }) {
   if (!result || !result.processes) return null;
 
   const processIds = [...new Set(processes.map(p => p.id))];
+
+  const downloadCSV = () => {
+    const headers = ['Process ID', 'Arrival Time', 'Burst Time', 'Priority', 'Completion Time', 'Turnaround Time', 'Waiting Time'];
+    const rows = result.processes.map(p => [
+      p.id,
+      p.arrivalTime,
+      p.burstTime,
+      p.priority,
+      p.completionTime,
+      p.turnaroundTime,
+      p.waitingTime
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${result.name}_results.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <motion.div
@@ -20,10 +49,39 @@ export default function ResultsTable({ result, processes }) {
         marginBottom: '24px',
       }}
     >
-      <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)', display: 'inline-block' }} />
-        Process Results
-      </h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)', display: 'inline-block' }} />
+          Process Results - {result.fullName}
+        </h2>
+        <button 
+          onClick={downloadCSV}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-tertiary)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border)',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--brand-500)';
+            e.currentTarget.style.color = 'var(--brand-500)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border)';
+            e.currentTarget.style.color = 'var(--text-primary)';
+          }}
+        >
+          <Download size={16} /> Export CSV
+        </button>
+      </div>
 
       <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
