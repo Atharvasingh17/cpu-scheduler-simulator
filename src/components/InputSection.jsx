@@ -11,6 +11,7 @@ const ALGORITHMS = [
   { value: 'Priority-P', label: 'Priority Scheduling (Preemptive)' },
   { value: 'RR', label: 'Round Robin' },
   { value: 'HRRN', label: 'Highest Response Ratio Next' },
+  { value: 'LJF', label: 'Longest Job First (Non-Preemptive)' },
 ];
 
 export default function InputSection({ processes, setProcesses, algorithm, setAlgorithm, timeQuantum, setTimeQuantum, onRun, onCompare }) {
@@ -47,11 +48,9 @@ export default function InputSection({ processes, setProcesses, algorithm, setAl
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="glass-card animate-fade-in"
       style={{
-        background: 'var(--bg-secondary)',
         borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border)',
-        boxShadow: 'var(--shadow-lg)',
         padding: '28px',
         marginBottom: '24px',
       }}

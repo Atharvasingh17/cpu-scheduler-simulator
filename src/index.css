@@ -14,6 +14,7 @@
   --text-muted: #94a3b8;
   --border: #e2e8f0;
   --border-focus: #6366f1;
+  --bg-secondary-rgb: 255, 255, 255;
 
   /* Brand Colors */
   --brand-50: #eef2ff;
@@ -109,11 +110,29 @@ body {
   background: var(--brand-500);
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+/* Utility Styles */
+.glass-card {
+  background: rgba(var(--bg-secondary-rgb, 255, 255, 255), 0.7) !important;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.125) !important;
 }
-input[type="number"] {
-  -moz-appearance: textfield;
+
+.dark .glass-card {
+  background: rgba(17, 24, 39, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
 }

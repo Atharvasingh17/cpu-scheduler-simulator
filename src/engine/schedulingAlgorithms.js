@@ -354,6 +354,56 @@ export function hrrn(inputProcesses) {
 }
 
 /**
+ * Longest Job First (Non-Preemptive)
+ */
+export function ljfNonPreemptive(inputProcesses) {
+  const processes = inputProcesses.map(p => ({ ...p }));
+  const n = processes.length;
+  const completed = new Array(n).fill(false);
+  const timeline = [];
+  let currentTime = 0;
+  let done = 0;
+
+  while (done < n) {
+    const available = processes
+      .map((p, i) => ({ ...p, idx: i }))
+      .filter((p) => !completed[p.idx] && p.arrivalTime <= currentTime);
+
+    if (available.length === 0) {
+      const remainingProcesses = processes.filter((_, i) => !completed[i]);
+      if (remainingProcesses.length === 0) break;
+      const nextArrival = Math.min(...remainingProcesses.map(p => p.arrivalTime));
+      
+      timeline.push({ processId: 'Idle', start: currentTime, end: nextArrival });
+      currentTime = nextArrival;
+      continue;
+    }
+
+    // Pick the process with the longest burst time
+    available.sort((a, b) => b.burstTime - a.burstTime || a.arrivalTime - b.arrivalTime);
+    const chosen = available[0];
+    const start = currentTime;
+    const end = currentTime + chosen.burstTime;
+
+    timeline.push({ processId: chosen.id, start, end });
+    processes[chosen.idx].completionTime = end;
+    processes[chosen.idx].turnaroundTime = end - chosen.arrivalTime;
+    processes[chosen.idx].waitingTime = processes[chosen.idx].turnaroundTime - chosen.burstTime;
+    completed[chosen.idx] = true;
+    currentTime = end;
+    done++;
+  }
+
+  return {
+    name: 'LJF',
+    fullName: 'Longest Job First (Non-Preemptive)',
+    processes,
+    timeline,
+    metrics: calculateMetrics(processes, timeline),
+  };
+}
+
+/**
  * Priority Scheduling (Preemptive)
  */
 export function priorityPreemptive(inputProcesses) {
@@ -424,6 +474,7 @@ export function compareAll(inputProcesses, timeQuantum = 2) {
     roundRobin(inputProcesses, timeQuantum),
     hrrn(inputProcesses),
     priorityPreemptive(inputProcesses),
+    ljfNonPreemptive(inputProcesses),
   ];
 
   let bestWT = results[0];
@@ -469,6 +520,7 @@ export function runAlgorithm(name, processes, timeQuantum) {
     case 'Priority-P': return priorityPreemptive(processes);
     case 'RR': return roundRobin(processes, timeQuantum);
     case 'HRRN': return hrrn(processes);
+    case 'LJF': return ljfNonPreemptive(processes);
     default: return fcfs(processes);
   }
 }
