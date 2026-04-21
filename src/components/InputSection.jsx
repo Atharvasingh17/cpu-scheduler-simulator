@@ -12,6 +12,7 @@ const ALGORITHMS = [
   { value: 'RR', label: 'Round Robin' },
   { value: 'HRRN', label: 'Highest Response Ratio Next' },
   { value: 'LJF', label: 'Longest Job First (Non-Preemptive)' },
+  { value: 'LRTF', label: 'Longest Remaining Time First (Preemptive LJF)' },
 ];
 
 export default function InputSection({ processes, setProcesses, algorithm, setAlgorithm, timeQuantum, setTimeQuantum, onRun, onCompare }) {
