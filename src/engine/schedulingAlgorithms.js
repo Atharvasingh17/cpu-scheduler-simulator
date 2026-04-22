@@ -13,10 +13,7 @@ export function getProcessColor(index) {
   return PROCESS_COLORS[index % PROCESS_COLORS.length];
 }
 
-function calculateMetrics(processes, timeline) {
-  const n = processes.length;
-  
-  // Calculate first response time for each process
+export function populateResponseTime(processes, timeline) {
   const firstAppearances = {};
   for (const entry of timeline) {
     if (entry.processId !== 'Idle' && !firstAppearances.hasOwnProperty(entry.processId)) {
@@ -26,6 +23,15 @@ function calculateMetrics(processes, timeline) {
 
   for (const proc of processes) {
     proc.responseTime = (firstAppearances[proc.id] ?? 0) - proc.arrivalTime;
+  }
+}
+
+function calculateMetrics(processes, timeline) {
+  const n = processes.length;
+  
+  // Ensure response times are populated if they haven't been already
+  if (processes.length > 0 && processes[0].responseTime === undefined) {
+    populateResponseTime(processes, timeline);
   }
 
   const totalBurst = processes.reduce((sum, p) => sum + p.burstTime, 0);
@@ -181,10 +187,11 @@ export function sjfPreemptive(inputProcesses) {
     currentTime++;
   }
 
+  populateResponseTime(processes, timeline);
   return {
     name: 'SRTF',
     fullName: 'Shortest Remaining Time First (Preemptive SJF)',
-    processes: processes.map(({ remaining, ...rest }) => rest),
+    processes: processes.map(({ remaining, responseTime, ...rest }) => ({ ...rest, responseTime })),
     timeline,
     metrics: calculateMetrics(processes, timeline),
   };
@@ -303,10 +310,11 @@ export function roundRobin(inputProcesses, timeQuantum = 2) {
     }
   }
 
+  populateResponseTime(processes, timeline);
   return {
     name: 'RR',
     fullName: `Round Robin (Q=${timeQuantum})`,
-    processes: processes.map(({ remaining, ...rest }) => rest),
+    processes: processes.map(({ remaining, responseTime, ...rest }) => ({ ...rest, responseTime })),
     timeline,
     metrics: calculateMetrics(processes, timeline),
   };
@@ -470,10 +478,11 @@ export function priorityPreemptive(inputProcesses) {
     currentTime++;
   }
 
+  populateResponseTime(processes, timeline);
   return {
     name: 'Priority (P)',
     fullName: 'Priority Scheduling (Preemptive)',
-    processes: processes.map(({ remaining, ...rest }) => rest),
+    processes: processes.map(({ remaining, responseTime, ...rest }) => ({ ...rest, responseTime })),
     timeline,
     metrics: calculateMetrics(processes, timeline),
   };
@@ -532,10 +541,11 @@ export function lrtfPreemptive(inputProcesses) {
     currentTime++;
   }
 
+  populateResponseTime(processes, timeline);
   return {
     name: 'LRTF',
     fullName: 'Longest Remaining Time First (Preemptive LJF)',
-    processes: processes.map(({ remaining, ...rest }) => rest),
+    processes: processes.map(({ remaining, responseTime, ...rest }) => ({ ...rest, responseTime })),
     timeline,
     metrics: calculateMetrics(processes, timeline),
   };
