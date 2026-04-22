@@ -8,7 +8,7 @@ export default function ResultsTable({ result, processes }) {
   const processIds = [...new Set(processes.map(p => p.id))];
 
   const downloadCSV = () => {
-    const headers = ['Process ID', 'Arrival Time', 'Burst Time', 'Priority', 'Completion Time', 'Turnaround Time', 'Waiting Time'];
+    const headers = ['Process ID', 'Arrival Time', 'Burst Time', 'Priority', 'Completion Time', 'Turnaround Time', 'Waiting Time', 'Response Time'];
     const rows = result.processes.map(p => [
       p.id,
       p.arrivalTime,
@@ -16,7 +16,8 @@ export default function ResultsTable({ result, processes }) {
       p.priority,
       p.completionTime,
       p.turnaroundTime,
-      p.waitingTime
+      p.waitingTime,
+      p.responseTime
     ]);
 
     const csvContent = [
@@ -92,6 +93,7 @@ export default function ResultsTable({ result, processes }) {
               <th style={thStyle}>Completion</th>
               <th style={thStyle}>Turnaround</th>
               <th style={thStyle}>Waiting</th>
+              <th style={thStyle}>Response</th>
             </tr>
           </thead>
           <tbody>
@@ -120,6 +122,7 @@ export default function ResultsTable({ result, processes }) {
                   <td style={tdMono}>{p.completionTime}</td>
                   <td style={{ ...tdMono, color: 'var(--info)' }}>{p.turnaroundTime}</td>
                   <td style={{ ...tdMono, color: p.waitingTime === 0 ? 'var(--success)' : 'var(--warning)' }}>{p.waitingTime}</td>
+                  <td style={{ ...tdMono, color: 'var(--brand-500)' }}>{p.responseTime}</td>
                 </motion.tr>
               );
             })}
@@ -129,6 +132,7 @@ export default function ResultsTable({ result, processes }) {
               <td colSpan={5} style={{ ...tdStyle, textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Averages</td>
               <td style={{ ...tdMono, color: 'var(--info)', fontWeight: 800 }}>{result.metrics.avgTurnaroundTime}</td>
               <td style={{ ...tdMono, color: 'var(--warning)', fontWeight: 800 }}>{result.metrics.avgWaitingTime}</td>
+              <td style={{ ...tdMono, color: 'var(--brand-500)', fontWeight: 800 }}>{result.metrics.avgResponseTime}</td>
             </tr>
           </tfoot>
         </table>
@@ -138,6 +142,7 @@ export default function ResultsTable({ result, processes }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginTop: '20px' }}>
         <MetricCard label="Avg Waiting Time" value={result.metrics.avgWaitingTime} unit="units" color="var(--warning)" />
         <MetricCard label="Avg Turnaround Time" value={result.metrics.avgTurnaroundTime} unit="units" color="var(--info)" />
+        <MetricCard label="Avg Response Time" value={result.metrics.avgResponseTime} unit="units" color="var(--brand-500)" />
         <MetricCard label="CPU Utilization" value={result.metrics.cpuUtilization} unit="%" color="var(--success)" />
         <MetricCard label="Throughput" value={result.metrics.throughput} unit="proc/unit" color="var(--brand-500)" />
       </div>

@@ -18,6 +18,12 @@ export default function AnalyticsPanel({ result, processes }) {
     value: p.turnaroundTime,
     color: getProcessColor(processIds.indexOf(p.id) >= 0 ? processIds.indexOf(p.id) : i),
   }));
+  
+  const rtData = result.processes.map((p, i) => ({
+    name: p.id,
+    value: p.responseTime,
+    color: getProcessColor(processIds.indexOf(p.id) >= 0 ? processIds.indexOf(p.id) : i),
+  }));
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -92,7 +98,27 @@ export default function AnalyticsPanel({ result, processes }) {
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="value" name="Turnaround Time" radius={[6, 6, 0, 0]} animationDuration={800}>
                 {tatData.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
+                   <Cell key={i} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Response Time Chart */}
+        <div>
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '14px', textAlign: 'center' }}>
+            Response Time by Process
+          </h3>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={rtData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" tick={{ fill: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 12 }} />
+              <YAxis tick={{ fill: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 12 }} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="value" name="Response Time" radius={[6, 6, 0, 0]} animationDuration={800}>
+                {rtData.map((entry, i) => (
+                   <Cell key={i} fill={entry.color} />
                 ))}
               </Bar>
             </BarChart>

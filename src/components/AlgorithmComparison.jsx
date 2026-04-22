@@ -26,6 +26,13 @@ export default function AlgorithmComparison({ comparison }) {
     fullName: r.fullName,
   }));
 
+  const rtCompare = results.map((r, i) => ({
+    name: r.name,
+    value: r.metrics.avgResponseTime,
+    color: ALGO_COLORS[i],
+    fullName: r.fullName,
+  }));
+
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -101,6 +108,14 @@ export default function AlgorithmComparison({ comparison }) {
               <div style={{ fontSize: '0.8rem', color: 'var(--info)', fontFamily: 'var(--font-mono)' }}>Avg TAT: {recommendation.byTurnaroundTime.metrics.avgTurnaroundTime}</div>
             </div>
           </div>
+          <div style={recCard}>
+            <Sparkles size={16} style={{ color: 'var(--brand-500)' }} />
+            <div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Best Response Time</div>
+              <div style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontSize: '1rem' }}>{recommendation.byResponseTime.fullName}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--brand-500)', fontFamily: 'var(--font-mono)' }}>Avg RT: {recommendation.byResponseTime.metrics.avgResponseTime}</div>
+            </div>
+          </div>
           <div style={{ ...recCard, background: 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(16,185,129,0.08))', border: '1px solid rgba(34,197,94,0.2)' }}>
             <Trophy size={16} style={{ color: 'var(--success)' }} />
             <div>
@@ -149,6 +164,24 @@ export default function AlgorithmComparison({ comparison }) {
             </BarChart>
           </ResponsiveContainer>
         </div>
+        <div>
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '14px', textAlign: 'center' }}>
+            Avg Response Time Comparison
+          </h3>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={rtCompare} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" tick={{ fill: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 12 }} />
+              <YAxis tick={{ fill: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: 12 }} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="value" name="Avg RT" radius={[6, 6, 0, 0]} animationDuration={800}>
+                {rtCompare.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Full Table */}
@@ -159,6 +192,7 @@ export default function AlgorithmComparison({ comparison }) {
               <th style={thStyle}>Algorithm</th>
               <th style={thStyle}>Avg WT</th>
               <th style={thStyle}>Avg TAT</th>
+              <th style={thStyle}>Avg RT</th>
               <th style={thStyle}>CPU Util %</th>
               <th style={thStyle}>Throughput</th>
             </tr>
@@ -178,6 +212,7 @@ export default function AlgorithmComparison({ comparison }) {
                   </td>
                   <td style={tdMono}>{r.metrics.avgWaitingTime}</td>
                   <td style={tdMono}>{r.metrics.avgTurnaroundTime}</td>
+                  <td style={tdMono}>{r.metrics.avgResponseTime}</td>
                   <td style={tdMono}>{r.metrics.cpuUtilization}%</td>
                   <td style={tdMono}>{r.metrics.throughput}</td>
                 </tr>

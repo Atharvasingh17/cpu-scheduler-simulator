@@ -15,6 +15,19 @@ export function getProcessColor(index) {
 
 function calculateMetrics(processes, timeline) {
   const n = processes.length;
+  
+  // Calculate first response time for each process
+  const firstAppearances = {};
+  for (const entry of timeline) {
+    if (entry.processId !== 'Idle' && !firstAppearances.hasOwnProperty(entry.processId)) {
+      firstAppearances[entry.processId] = entry.start;
+    }
+  }
+
+  for (const proc of processes) {
+    proc.responseTime = (firstAppearances[proc.id] ?? 0) - proc.arrivalTime;
+  }
+
   const totalBurst = processes.reduce((sum, p) => sum + p.burstTime, 0);
   const maxCompletion = Math.max(...processes.map(p => p.completionTime));
   const minArrival = Math.min(...processes.map(p => p.arrivalTime));
@@ -22,12 +35,14 @@ function calculateMetrics(processes, timeline) {
 
   const avgWaitingTime = processes.reduce((sum, p) => sum + p.waitingTime, 0) / n;
   const avgTurnaroundTime = processes.reduce((sum, p) => sum + p.turnaroundTime, 0) / n;
+  const avgResponseTime = processes.reduce((sum, p) => sum + p.responseTime, 0) / n;
   const cpuUtilization = totalTime > 0 ? (totalBurst / totalTime) * 100 : 0;
   const throughput = totalTime > 0 ? n / totalTime : 0;
 
   return {
     avgWaitingTime: Math.round(avgWaitingTime * 100) / 100,
     avgTurnaroundTime: Math.round(avgTurnaroundTime * 100) / 100,
+    avgResponseTime: Math.round(avgResponseTime * 100) / 100,
     cpuUtilization: Math.round(cpuUtilization * 100) / 100,
     throughput: Math.round(throughput * 1000) / 1000,
   };
@@ -544,9 +559,11 @@ export function compareAll(inputProcesses, timeQuantum = 2) {
 
   let bestWT = results[0];
   let bestTAT = results[0];
+  let bestRT = results[0];
   for (const r of results) {
     if (r.metrics.avgWaitingTime < bestWT.metrics.avgWaitingTime) bestWT = r;
     if (r.metrics.avgTurnaroundTime < bestTAT.metrics.avgTurnaroundTime) bestTAT = r;
+    if (r.metrics.avgResponseTime < bestRT.metrics.avgResponseTime) bestRT = r;
   }
 
   return {
@@ -554,6 +571,7 @@ export function compareAll(inputProcesses, timeQuantum = 2) {
     recommendation: {
       byWaitingTime: bestWT,
       byTurnaroundTime: bestTAT,
+      byResponseTime: bestRT,
       overall: bestWT.metrics.avgWaitingTime + bestWT.metrics.avgTurnaroundTime <=
                bestTAT.metrics.avgWaitingTime + bestTAT.metrics.avgTurnaroundTime ? bestWT : bestTAT,
     },

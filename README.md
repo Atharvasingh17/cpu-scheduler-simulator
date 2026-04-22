@@ -17,8 +17,10 @@ A powerful, interactive web-based simulator designed to visualize and compare va
   - Priority Scheduling - Non-preemptive & Preemptive
   - Round Robin (RR) with adjustable Time Quantum
   - Highest Response Ratio Next (HRRN)
+  - Longest Job First (LJF) - Non-preemptive
+  - Longest Remaining Time First (LRTF) - Preemptive LJF
 - **Interactive Visualization**: Real-time Gantt chart generation for process execution timelines.
-- **Deep Analytics**: Detailed metrics including Average Waiting Time, Turnaround Time, CPU Utilization, and Throughput.
+- **Deep Analytics**: Detailed metrics including Average Waiting Time, Turnaround Time, Response Time, CPU Utilization, and Throughput.
 - **Algorithm Comparison**: Side-by-side comparison mode to determine the most efficient algorithm for a given set of processes.
 - **Data Portability**: Export results directly to CSV for further analysis.
 - **Modern UI/UX**: Dark mode support, fluid animations, and a responsive design.
