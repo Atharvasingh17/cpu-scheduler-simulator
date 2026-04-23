@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Trophy, Zap, Clock, Award } from 'lucide-react';
+import { Trophy, Zap, Clock, Award, Sparkles } from 'lucide-react';
 
 const ALGO_COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316',
@@ -114,6 +114,14 @@ export default function AlgorithmComparison({ comparison }) {
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Best Response Time</div>
               <div style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontSize: '1rem' }}>{recommendation.byResponseTime.fullName}</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--brand-500)', fontFamily: 'var(--font-mono)' }}>Avg RT: {recommendation.byResponseTime.metrics.avgResponseTime}</div>
+            </div>
+          </div>
+          <div style={recCard}>
+            <Award size={16} style={{ color: 'var(--success)' }} />
+            <div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Most Fair</div>
+              <div style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontSize: '1rem' }}>{recommendation.byFairness.fullName}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--success)', fontFamily: 'var(--font-mono)' }}>Fairness: {recommendation.byFairness.metrics.fairnessIndex}%</div>
             </div>
           </div>
           <div style={{ ...recCard, background: 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(16,185,129,0.08))', border: '1px solid rgba(34,197,94,0.2)' }}>

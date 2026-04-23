@@ -588,10 +588,33 @@ export function compareAll(inputProcesses, timeQuantum = 2) {
   let bestWT = results[0];
   let bestTAT = results[0];
   let bestRT = results[0];
+  let bestFairness = results[0];
+
   for (const r of results) {
     if (r.metrics.avgWaitingTime < bestWT.metrics.avgWaitingTime) bestWT = r;
     if (r.metrics.avgTurnaroundTime < bestTAT.metrics.avgTurnaroundTime) bestTAT = r;
     if (r.metrics.avgResponseTime < bestRT.metrics.avgResponseTime) bestRT = r;
+    if (r.metrics.fairnessIndex > bestFairness.metrics.fairnessIndex) bestFairness = r;
+  }
+
+  // Pick overall best based on a weighted score (lower is better)
+  // Weights: WT (0.4), TAT (0.3), RT (0.2), Fairness (0.1 - inverse)
+  const calculateScore = (r) => {
+    return (r.metrics.avgWaitingTime * 0.4) + 
+           (r.metrics.avgTurnaroundTime * 0.3) + 
+           (r.metrics.avgResponseTime * 0.2) + 
+           ((100 - r.metrics.fairnessIndex) * 0.1);
+  };
+
+  let overallBest = results[0];
+  let minScore = calculateScore(results[0]);
+
+  for (const r of results) {
+    const score = calculateScore(r);
+    if (score < minScore) {
+      minScore = score;
+      overallBest = r;
+    }
   }
 
   return {
@@ -600,8 +623,8 @@ export function compareAll(inputProcesses, timeQuantum = 2) {
       byWaitingTime: bestWT,
       byTurnaroundTime: bestTAT,
       byResponseTime: bestRT,
-      overall: bestWT.metrics.avgWaitingTime + bestWT.metrics.avgTurnaroundTime <=
-               bestTAT.metrics.avgWaitingTime + bestTAT.metrics.avgTurnaroundTime ? bestWT : bestTAT,
+      byFairness: bestFairness,
+      overall: overallBest,
     },
   };
 }
