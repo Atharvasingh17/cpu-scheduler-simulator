@@ -143,6 +143,7 @@ export default function ResultsTable({ result, processes }) {
         <MetricCard label="Avg Waiting Time" value={result.metrics.avgWaitingTime} unit="units" color="var(--warning)" />
         <MetricCard label="Avg Turnaround Time" value={result.metrics.avgTurnaroundTime} unit="units" color="var(--info)" />
         <MetricCard label="Avg Response Time" value={result.metrics.avgResponseTime} unit="units" color="var(--brand-500)" />
+        <MetricCard label="Fairness Index" value={result.metrics.fairnessIndex} unit="%" color="var(--success)" />
         <MetricCard label="CPU Utilization" value={result.metrics.cpuUtilization} unit="%" color="var(--success)" />
         <MetricCard label="Throughput" value={result.metrics.throughput} unit="proc/unit" color="var(--brand-500)" />
       </div>

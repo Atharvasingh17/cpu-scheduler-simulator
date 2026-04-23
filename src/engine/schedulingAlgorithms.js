@@ -26,6 +26,21 @@ export function populateResponseTime(processes, timeline) {
   }
 }
 
+function calculateFairnessIndex(waitingTimes) {
+  const n = waitingTimes.length;
+  if (n === 0) return 100;
+  
+  // If all waiting times are 0, it's perfectly fair
+  if (waitingTimes.every(w => w === 0)) return 100;
+
+  const sum = waitingTimes.reduce((a, b) => a + b, 0);
+  const sumSq = waitingTimes.reduce((a, b) => a + b * b, 0);
+  
+  // Jain's Fairness Index: (Σx)² / (n * Σx²)
+  const index = (sum * sum) / (n * sumSq);
+  return Math.round(index * 10000) / 100; // Return as percentage
+}
+
 function calculateMetrics(processes, timeline) {
   const n = processes.length;
   
@@ -39,11 +54,13 @@ function calculateMetrics(processes, timeline) {
   const minArrival = Math.min(...processes.map(p => p.arrivalTime));
   const totalTime = maxCompletion - minArrival;
 
-  const avgWaitingTime = processes.reduce((sum, p) => sum + p.waitingTime, 0) / n;
+  const waitingTimes = processes.map(p => p.waitingTime);
+  const avgWaitingTime = waitingTimes.reduce((sum, w) => sum + w, 0) / n;
   const avgTurnaroundTime = processes.reduce((sum, p) => sum + p.turnaroundTime, 0) / n;
   const avgResponseTime = processes.reduce((sum, p) => sum + p.responseTime, 0) / n;
   const cpuUtilization = totalTime > 0 ? (totalBurst / totalTime) * 100 : 0;
   const throughput = totalTime > 0 ? n / totalTime : 0;
+  const fairnessIndex = calculateFairnessIndex(waitingTimes);
 
   return {
     avgWaitingTime: Math.round(avgWaitingTime * 100) / 100,
@@ -51,6 +68,7 @@ function calculateMetrics(processes, timeline) {
     avgResponseTime: Math.round(avgResponseTime * 100) / 100,
     cpuUtilization: Math.round(cpuUtilization * 100) / 100,
     throughput: Math.round(throughput * 1000) / 1000,
+    fairnessIndex,
   };
 }
 

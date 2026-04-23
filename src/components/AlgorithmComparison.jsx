@@ -121,6 +121,7 @@ export default function AlgorithmComparison({ comparison }) {
             <div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Overall Best</div>
               <div style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--success)', fontSize: '1rem' }}>{recommendation.overall.fullName}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--success)', fontFamily: 'var(--font-mono)' }}>Fairness: {recommendation.overall.metrics.fairnessIndex}%</div>
             </div>
           </div>
         </div>
@@ -193,6 +194,7 @@ export default function AlgorithmComparison({ comparison }) {
               <th style={thStyle}>Avg WT</th>
               <th style={thStyle}>Avg TAT</th>
               <th style={thStyle}>Avg RT</th>
+              <th style={thStyle}>Fairness Index</th>
               <th style={thStyle}>CPU Util %</th>
               <th style={thStyle}>Throughput</th>
             </tr>
@@ -213,6 +215,9 @@ export default function AlgorithmComparison({ comparison }) {
                   <td style={tdMono}>{r.metrics.avgWaitingTime}</td>
                   <td style={tdMono}>{r.metrics.avgTurnaroundTime}</td>
                   <td style={tdMono}>{r.metrics.avgResponseTime}</td>
+                  <td style={{ ...tdMono, color: r.metrics.fairnessIndex > 90 ? 'var(--success)' : r.metrics.fairnessIndex > 70 ? 'var(--info)' : 'var(--warning)' }}>
+                    {r.metrics.fairnessIndex}%
+                  </td>
                   <td style={tdMono}>{r.metrics.cpuUtilization}%</td>
                   <td style={tdMono}>{r.metrics.throughput}</td>
                 </tr>
