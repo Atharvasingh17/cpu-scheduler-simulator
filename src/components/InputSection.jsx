@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Sparkles, RotateCcw, Play, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Sparkles, RotateCcw, Play, ChevronDown, Download, Upload } from 'lucide-react';
 import { generateSampleProcesses } from '../engine/schedulingAlgorithms';
 
 const ALGORITHMS = [
@@ -40,6 +40,39 @@ export default function InputSection({ processes, setProcesses, algorithm, setAl
     setProcesses([]);
   };
 
+  const exportConfig = () => {
+    const config = JSON.stringify(processes, null, 2);
+    const blob = new Blob([config], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'cpu_scheduler_config.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importConfig = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (re) => {
+        try {
+          const imported = JSON.parse(re.target.result);
+          if (Array.isArray(imported)) {
+            setProcesses(imported);
+          }
+        } catch (err) {
+          alert('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') addProcess();
   };
@@ -61,10 +94,16 @@ export default function InputSection({ processes, setProcesses, algorithm, setAl
           <span style={{ background: 'linear-gradient(135deg, var(--brand-500), var(--brand-700))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Process Configuration</span>
         </h2>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <button onClick={loadSample} style={btnSecondary}>
-            <Sparkles size={15} /> Sample Data
+          <button onClick={loadSample} style={btnSecondary} title="Load Sample Data">
+            <Sparkles size={15} /> Sample
           </button>
-          <button onClick={clearAll} style={btnDanger}>
+          <button onClick={exportConfig} style={btnSecondary} title="Export Configuration">
+            <Download size={15} /> Export
+          </button>
+          <button onClick={importConfig} style={btnSecondary} title="Import Configuration">
+            <Upload size={15} /> Import
+          </button>
+          <button onClick={clearAll} style={btnDanger} title="Clear All Processes">
             <RotateCcw size={15} /> Clear
           </button>
         </div>
