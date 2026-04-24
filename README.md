@@ -22,7 +22,8 @@ A powerful, interactive web-based simulator designed to visualize and compare va
 - **Interactive Visualization**: Real-time Gantt chart generation for process execution timelines.
 - **Deep Analytics**: Detailed metrics including Average Waiting Time, Turnaround Time, Response Time, CPU Utilization, and Throughput.
 - **Algorithm Comparison**: Side-by-side comparison mode to determine the most efficient algorithm for a given set of processes.
-- **Data Portability**: Export results directly to CSV for further analysis.
+- **Data Portability**: Export results to CSV and save/load process configurations via JSON.
+- **Algorithm Descriptions**: Integrated hints and explanations for each scheduling strategy.
 - **Modern UI/UX**: Dark mode support, fluid animations, and a responsive design.
 
 ## 🛠️ Tech Stack

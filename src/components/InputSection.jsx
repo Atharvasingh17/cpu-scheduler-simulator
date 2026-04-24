@@ -4,15 +4,51 @@ import { Plus, Trash2, Sparkles, RotateCcw, Play, ChevronDown, Download, Upload 
 import { generateSampleProcesses } from '../engine/schedulingAlgorithms';
 
 const ALGORITHMS = [
-  { value: 'FCFS', label: 'First Come First Serve (FCFS)' },
-  { value: 'SJF', label: 'Shortest Job First (Non-Preemptive)' },
-  { value: 'SRTF', label: 'Shortest Remaining Time First (Preemptive SJF)' },
-  { value: 'Priority', label: 'Priority Scheduling (Non-Preemptive)' },
-  { value: 'Priority-P', label: 'Priority Scheduling (Preemptive)' },
-  { value: 'RR', label: 'Round Robin' },
-  { value: 'HRRN', label: 'Highest Response Ratio Next' },
-  { value: 'LJF', label: 'Longest Job First (Non-Preemptive)' },
-  { value: 'LRTF', label: 'Longest Remaining Time First (Preemptive LJF)' },
+  { 
+    value: 'FCFS', 
+    label: 'First Come First Serve (FCFS)', 
+    desc: 'Processes are executed in the order they arrive. Simple but can lead to "convoy effect".' 
+  },
+  { 
+    value: 'SJF', 
+    label: 'Shortest Job First (Non-Preemptive)', 
+    desc: 'Selects the process with the smallest burst time. Minimizes average waiting time.' 
+  },
+  { 
+    value: 'SRTF', 
+    label: 'Shortest Remaining Time First (Preemptive SJF)', 
+    desc: 'Preemptive version of SJF. Current process is interrupted if a new process with shorter burst arrives.' 
+  },
+  { 
+    value: 'Priority', 
+    label: 'Priority Scheduling (Non-Preemptive)', 
+    desc: 'Each process is assigned a priority. Process with higher priority (lower number) is executed first.' 
+  },
+  { 
+    value: 'Priority-P', 
+    label: 'Priority Scheduling (Preemptive)', 
+    desc: 'Preemptive version of Priority scheduling. Higher priority processes can interrupt current execution.' 
+  },
+  { 
+    value: 'RR', 
+    label: 'Round Robin', 
+    desc: 'Each process is given a fixed time slice (quantum) in a cyclic order. Good for time-sharing systems.' 
+  },
+  { 
+    value: 'HRRN', 
+    label: 'Highest Response Ratio Next', 
+    desc: 'Non-preemptive. Prioritizes processes based on (Waiting Time + Burst Time) / Burst Time to avoid starvation.' 
+  },
+  { 
+    value: 'LJF', 
+    label: 'Longest Job First (Non-Preemptive)', 
+    desc: 'Prioritizes processes with longer burst times. Useful when long tasks are critical.' 
+  },
+  { 
+    value: 'LRTF', 
+    label: 'Longest Remaining Time First (Preemptive LJF)', 
+    desc: 'Preemptive version of LJF. Continually selects the process with the most remaining work.' 
+  },
 ];
 
 export default function InputSection({ processes, setProcesses, algorithm, setAlgorithm, timeQuantum, setTimeQuantum, onRun, onCompare }) {
@@ -124,6 +160,9 @@ export default function InputSection({ processes, setProcesses, algorithm, setAl
               ))}
             </select>
             <ChevronDown size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-muted)' }} />
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--brand-400)', marginTop: '6px', fontStyle: 'italic' }}>
+            {ALGORITHMS.find(a => a.value === algorithm)?.desc}
           </div>
         </div>
         {algorithm === 'RR' && (
